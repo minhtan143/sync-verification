@@ -7,10 +7,10 @@ data = []
 def getAllIdCard():
     conn = psycopg2.connect(
         database="identity",
-        host="host.docker.internal",
+        host="194.233.92.175",
         user="postgres",
         password="example",
-        port="39797",
+        port="39892",
     )
 
     cursor = conn.cursor()
@@ -40,7 +40,7 @@ def postAllIdCard():
     for user in data:
         # login
         response = requests.post(
-            "https://buyer.host.docker.internal:39791/connect/token",
+            "https://buyer.authdev.yocar.vn/connect/token",
             headers={"Content-Length": "application/x-www-form-urlencoded"},
             data={
                 "grant_type": "password",
@@ -48,8 +48,7 @@ def postAllIdCard():
                 "client_id": "yocar_App",
                 "username": user[0],
                 "password": user[3],
-            },
-            verify=False,
+            }
         )
 
         if response.status_code != 200:
@@ -68,16 +67,15 @@ def postAllIdCard():
         }
 
         response = requests.post(
-            "https://host.docker.internal:39793/api/v2/identity/users/buyer/me/verification",
+            "https://apidev.yocar.vn/api/v2/identity/users/buyer/me/verification",
             headers={
                 "Content-Length": "multipart/form-data",
                 "Authorization": f"Bearer {token}",
             },
-            files=files,
-            verify=False,
+            files=files
         )
 
-        if response.status_code != 200:
+        if response.status_code != 200 and response.status_code != 204:
             logging.exception(
                 f"------------- Can't update verification to {user[0]}: {response.json()}"
             )
